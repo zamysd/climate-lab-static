@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Earth's Climate System Virtual Lab</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Three.js CDN -->
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
+            }
+        }
+    </script>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <!-- HEADER (Shared/Mobile Top) -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1><span data-i18n="header_title">Climate Lab 🌍</span></h1>
+                <div class="lang-switcher">
+                    <select id="lang-select">
+                        <option value="en" data-i18n="lang_en">English</option>
+                        <option value="id" data-i18n="lang_id" selected>Indonesia</option>
+                    </select>
+                </div>
+            </div>
+            <p data-i18n="header_subtitle" class="subtitle">Simulate Earth's Energy Balance</p>
+        </header>
+
+        <!-- VIEW: SIMULATION (Default) -->
+        <section id="view-simulation" class="view active">
+            <div id="canvas-wrapper">
+                <div id="canvas-container"></div>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-label" data-i18n="stat_temp">Avg. Surface Temp</div>
+                    <div class="stat-value"><span id="temp-value">15.0</span> °C</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label" data-i18n="stat_balance">Energy Balance</div>
+                    <div class="stat-value"><span id="balance-value">0.0</span> W/m²</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: VARIABLES -->
+        <section id="view-variables" class="view">
+            <h2 data-i18n="variables">Variables</h2>
+            <div class="controls-list">
+                <div class="control-card">
+                    <div class="control-header">
+                        <label for="co2-slider" data-i18n="co2_label">CO₂ Intensity</label>
+                        <span class="control-value"><span id="co2-value">400</span> ppm</span>
+                    </div>
+                    <input type="range" id="co2-slider" min="280" max="600" value="400" step="10">
+                    <p class="control-info" data-i18n="co2_info">Carbon Dioxide levels.</p>
+                </div>
+
+                <div class="control-card">
+                    <div class="control-header">
+                        <label for="albedo-slider" data-i18n="albedo_label">Surface Albedo</label>
+                        <span class="control-value"><span id="albedo-value">0.30</span></span>
+                    </div>
+                    <input type="range" id="albedo-slider" min="0.1" max="0.6" value="0.30" step="0.01">
+                    <p class="control-info" data-i18n="albedo_info">Reflectivity (Ice = High).</p>
+                </div>
+
+                <div class="control-card">
+                    <div class="control-header">
+                        <label for="solar-slider" data-i18n="solar_label">Solar Radiation</label>
+                        <span class="control-value"><span id="solar-value">1361</span> W/m²</span>
+                    </div>
+                    <input type="range" id="solar-slider" min="1300" max="1400" value="1361" step="1">
+                    <p class="control-info" data-i18n="solar_info">Sun intensity.</p>
+                </div>
+
+                <div class="control-card">
+                    <div class="control-header">
+                        <label for="forest-slider" data-i18n="forest_label">Forest Coverage</label>
+                        <span class="control-value"><span id="forest-value">30</span>%</span>
+                    </div>
+                    <input type="range" id="forest-slider" min="0" max="100" value="30" step="1">
+                    <p class="control-info" data-i18n="forest_info">Vegetation amount.</p>
+                </div>
+
+                <div class="presets-row">
+                    <button class="preset-pill" data-preset="pre-industrial"
+                        data-i18n="preset_preindustrial">Pre-Industrial</button>
+                    <button class="preset-pill" data-preset="modern" data-i18n="preset_modern">Modern</button>
+                    <button class="preset-pill" data-preset="extreme" data-i18n="preset_extreme">Extreme</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: DATA -->
+        <section id="view-data" class="view">
+            <h2 data-i18n="analytics_title">Real-time Data</h2>
+
+            <div class="data-card">
+                <h3 data-i18n="chart_temp">Temperature History</h3>
+                <div class="chart-wrapper">
+                    <canvas id="temp-chart"></canvas>
+                </div>
+            </div>
+
+            <div class="data-card">
+                <h3 data-i18n="chart_balance">Energy Flow</h3>
+                <div class="chart-wrapper">
+                    <canvas id="balance-chart"></canvas>
+                </div>
+            </div>
+
+            <div class="energy-flow-card">
+                <h3 data-i18n="energy_flow_title">Energy Budget</h3>
+                <div class="flow-item">
+                    <span data-i18n="flow_incoming">Incoming Solar</span>
+                    <span class="flow-num"><span id="flow-in">340</span> W/m²</span>
+                </div>
+                <div class="flow-item">
+                    <span data-i18n="flow_reflected">Reflected</span>
+                    <span class="flow-num"><span id="flow-reflected">100</span> W/m²</span>
+                </div>
+                <div class="flow-item">
+                    <span data-i18n="flow_outgoing">Outgoing Heat</span>
+                    <span class="flow-num"><span id="flow-out">240</span> W/m²</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: INFO -->
+        <section id="view-info" class="view">
+            <h2 data-i18n="constants_title">Info & Constants</h2>
+            <div class="info-card">
+                <ul>
+                    <li data-i18n="constant_radius">Radius: 6,371 km</li>
+                    <li data-i18n="constant_area">Surface Area: 510M km²</li>
+                </ul>
+                <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                    Created for Earth Climate Lab. <br>
+                    Simulates simplified energy balance equations.
+                </p>
+            </div>
+        </section>
+
+        <!-- BOTTOM NAVIGATION -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-target="view-simulation">
+                <span class="nav-icon">🌍</span>
+                <span class="nav-label">Sim</span>
+            </button>
+            <button class="nav-item" data-target="view-variables">
+                <span class="nav-icon">🎚️</span>
+                <span class="nav-label">Vars</span>
+            </button>
+            <button class="nav-item" data-target="view-data">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Data</span>
+            </button>
+            <button class="nav-item" data-target="view-info">
+                <span class="nav-icon">ℹ️</span>
+                <span class="nav-label">Info</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="main.js"></script>
+</body>
+
+</html>
