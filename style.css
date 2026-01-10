@@ -329,6 +329,38 @@ input[type="range"]::-webkit-slider-thumb {
 .nav-label {
     font-size: 0.7rem;
 }
+/* PRESET BUTTONS */
+.presets-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.preset-pill {
+    background: rgba(56, 189, 248, 0.08);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(6px);
+}
+
+.preset-pill:hover {
+    background: rgba(56, 189, 248, 0.18);
+}
+
+.preset-pill.active {
+    background: var(--accent);
+    color: #0f172a;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+}
+
+
 
 /* ================================
    DESKTOP (≥768px)
@@ -383,33 +415,3 @@ input[type="range"]::-webkit-slider-thumb {
     #view-info {
         display: none !important;
     }
-/* PRESET BUTTONS */
-.presets-row {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.preset-pill {
-    background: rgba(56, 189, 248, 0.08);
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    padding: 0.5rem 0.9rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    backdrop-filter: blur(6px);
-}
-
-.preset-pill:hover {
-    background: rgba(56, 189, 248, 0.18);
-}
-
-.preset-pill.active {
-    background: var(--accent);
-    color: #0f172a;
-    box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
-}
